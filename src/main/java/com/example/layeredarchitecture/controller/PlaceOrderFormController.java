@@ -343,8 +343,8 @@ public class PlaceOrderFormController {
                     return false;
                 }
 
-
 //                //Search & Update Item
+
                 ItemDTO item = findItem(detail.getItemCode());
                 item.setQtyOnHand(item.getQtyOnHand() - detail.getQty());
 
@@ -372,9 +372,7 @@ public class PlaceOrderFormController {
     public ItemDTO findItem(String code) {
         try {
 
-//          findItem
             return itemDAOImpl.getItem(code);
-
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find the Item " + code, e);
