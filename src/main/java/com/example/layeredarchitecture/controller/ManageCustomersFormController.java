@@ -147,6 +147,7 @@ public class ManageCustomersFormController {
                 if (customerDAOImpl.existCustomer(id)) {
                     new Alert(Alert.AlertType.ERROR, id + " already exists").show();
                 }
+//                Save Customer
                 customerDAOImpl.saveCustomer(id,name,address);
 
                 tblCustomers.getItems().add(new CustomerTM(id, name, address));
