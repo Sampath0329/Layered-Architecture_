@@ -1,4 +1,4 @@
-package com.example.layeredarchitecture.Custom.Impl;
+package com.example.layeredarchitecture.dao;
 
 import com.example.layeredarchitecture.db.DBConnection;
 

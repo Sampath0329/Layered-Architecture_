@@ -1,4 +1,4 @@
-package com.example.layeredarchitecture.Custom;
+package com.example.layeredarchitecture.dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
