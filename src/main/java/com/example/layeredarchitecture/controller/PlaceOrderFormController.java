@@ -1,6 +1,13 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.dao.*;
+import com.example.layeredarchitecture.Custom.CustomerDAO;
+import com.example.layeredarchitecture.Custom.Impl.CustomerDAOImpl;
+import com.example.layeredarchitecture.Custom.Impl.ItemDAOImpl;
+import com.example.layeredarchitecture.Custom.Impl.OrderDAOImpl;
+import com.example.layeredarchitecture.Custom.Impl.OrderDetailsDAOImpl;
+import com.example.layeredarchitecture.Custom.ItemDAO;
+import com.example.layeredarchitecture.Custom.OrderDAO;
+import com.example.layeredarchitecture.Custom.OrderDetailsDAO;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.model.ItemDTO;
@@ -105,7 +112,7 @@ public class PlaceOrderFormController {
                 try {
                     /*Search Customer*/
                     try {
-                        if (!customerDAOImpl.existCustomer(newValue + "")) {
+                        if (!customerDAOImpl.exist(newValue + "")) {
 //                            "There is no such customer associated with the id " + id
                             new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + newValue + "").show();
                         }
@@ -134,7 +141,7 @@ public class PlaceOrderFormController {
 
                 /*Find Item*/
                 try {
-                    if (!itemDAOImpl.existItem(newItemCode + "")) {
+                    if (!itemDAOImpl.exist(newItemCode + "")) {
 //                        throw new NotFoundException("There is no such item associated with the id " + code);
                     }
                     ItemDTO itemDTO = itemDAOImpl.Item(newItemCode);
@@ -199,7 +206,7 @@ public class PlaceOrderFormController {
     private void loadAllCustomerIds() {
         try {
 
-            ArrayList<CustomerDTO> customerList = customerDAOImpl.getAllCustomer();
+            ArrayList<CustomerDTO> customerList = customerDAOImpl.getAll();
 
             for (CustomerDTO customerDTO : customerList){
 
@@ -218,7 +225,7 @@ public class PlaceOrderFormController {
     private void loadAllItemCodes() {
         try {
             /*Get all items*/
-            ArrayList<ItemDTO> itemList = itemDAOImpl.getAllItem();
+            ArrayList<ItemDTO> itemList = itemDAOImpl.getAll();
             for (ItemDTO itemDTO : itemList){
                 cmbItemCode.getItems().add(itemDTO.getCode());
             }
@@ -298,7 +305,7 @@ public class PlaceOrderFormController {
 
     public void btnPlaceOrder_OnAction(ActionEvent actionEvent) {
         boolean b = saveOrder(orderId, LocalDate.now(), cmbCustomerId.getValue(),
-                tblOrderDetails.getItems().stream().map(tm -> new OrderDetailDTO(tm.getCode(), tm.getQty(), tm.getUnitPrice())).collect(Collectors.toList()));
+                tblOrderDetails.getItems().stream().map(tm -> new OrderDetailDTO(orderId,tm.getCode(), tm.getQty(), tm.getUnitPrice())).collect(Collectors.toList()));
 
         if (b) {
             new Alert(Alert.AlertType.INFORMATION, "Order has been placed successfully").show();
@@ -321,13 +328,13 @@ public class PlaceOrderFormController {
             Connection connection = DBConnection.getDbConnection().getConnection();
 
             /*if order id already exist*/
-            if (orderDAOImpl.existOrder(orderId)){
-
+            if (orderDAOImpl.exist(orderId)){
+                return false;
             }
 
             connection.setAutoCommit(false);
 
-            if (!(orderDAOImpl.saveOrder(new OrderDTO(orderId,orderDate,customerId)))){
+            if (!(orderDAOImpl.save(new OrderDTO(orderId,orderDate,customerId)))){
                 connection.rollback();
                 connection.setAutoCommit(true);
                 return false;
@@ -337,7 +344,7 @@ public class PlaceOrderFormController {
 
             for (OrderDetailDTO detail : orderDetails) {
 
-                if (!(orderDetailsDAOImpl.saveOrderDetails(orderId,detail))) {
+                if (!(orderDetailsDAOImpl.save(detail))) {
                     connection.rollback();
                     connection.setAutoCommit(true);
                     return false;
@@ -372,7 +379,7 @@ public class PlaceOrderFormController {
     public ItemDTO findItem(String code) {
         try {
 
-            return itemDAOImpl.getItem(code);
+            return itemDAOImpl.Item(code);
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find the Item " + code, e);

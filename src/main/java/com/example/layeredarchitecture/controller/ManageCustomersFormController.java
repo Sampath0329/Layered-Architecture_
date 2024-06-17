@@ -1,7 +1,7 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.dao.CustomerDAO;
-import com.example.layeredarchitecture.dao.CustomerDAOImpl;
+import com.example.layeredarchitecture.Custom.CustomerDAO;
+import com.example.layeredarchitecture.Custom.Impl.CustomerDAOImpl;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.view.tdm.CustomerTM;
 import com.jfoenix.controls.JFXButton;
@@ -71,7 +71,7 @@ public class ManageCustomersFormController {
         /*Get all customers*/
         try {
 
-            ArrayList<CustomerDTO> allCustomer = customerDAOImpl.getAllCustomer();
+            ArrayList<CustomerDTO> allCustomer = customerDAOImpl.getAll();
 
             for (CustomerDTO customerDTO : allCustomer){
                 tblCustomers.getItems().add(new CustomerTM(customerDTO.getId(),customerDTO.getName(),customerDTO.getAddress()));
@@ -144,11 +144,11 @@ public class ManageCustomersFormController {
         if (btnSave.getText().equalsIgnoreCase("save")) {
             /*Save Customer*/
             try {
-                if (customerDAOImpl.existCustomer(id)) {
+                if (customerDAOImpl.exist(id)) {
                     new Alert(Alert.AlertType.ERROR, id + " already exists").show();
                 }
 //                Save Customer
-                customerDAOImpl.saveCustomer(id,name,address);
+                customerDAOImpl.save(new CustomerDTO(id,name,address));
 
                 tblCustomers.getItems().add(new CustomerTM(id, name, address));
             } catch (SQLException e) {
@@ -161,10 +161,10 @@ public class ManageCustomersFormController {
         } else {
             /*Update customer*/
             try {
-                if (!customerDAOImpl.existCustomer(id)) {
+                if (!customerDAOImpl.exist(id)) {
                     new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
                 }
-                customerDAOImpl.updateCustomer(name,address,id);
+                customerDAOImpl.update(new CustomerDTO(id,name,address));
 
 
             } catch (SQLException e) {
@@ -186,10 +186,10 @@ public class ManageCustomersFormController {
         /*Delete Customer*/
         String id = tblCustomers.getSelectionModel().getSelectedItem().getId();
         try {
-            if (!customerDAOImpl.existCustomer(id)) {
+            if (!customerDAOImpl.exist(id)) {
                 new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
             }
-            customerDAOImpl.deleteCustomer(id);
+            customerDAOImpl.delete(id);
 
 
 
