@@ -1,5 +1,7 @@
-package com.example.layeredarchitecture.dao;
+package com.example.layeredarchitecture.dao.Custome.Impl;
 
+import com.example.layeredarchitecture.dao.Custome.CustomerDAO;
+import com.example.layeredarchitecture.dao.SQLUtil;
 import com.example.layeredarchitecture.model.CustomerDTO;
 
 import java.sql.*;
@@ -58,16 +60,10 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public String getCurrentId() throws SQLException, ClassNotFoundException {
-
+    public String getNewId() throws SQLException, ClassNotFoundException {
 
         ResultSet rst = SQLUtil.execute("SELECT id FROM Customer ORDER BY id DESC LIMIT 1;");
-
-
-        if (rst.next()){
-            return rst.getString(1);
-        }
-        return null;
+        return rst.next() ? String.format("C00-%03d", (Integer.parseInt(rst.getString(1).replace("C00-", "")) + 1)) : "C00-001";
     }
 
     @Override

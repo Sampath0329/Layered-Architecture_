@@ -1,13 +1,6 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.dao.CustomerDAO;
-import com.example.layeredarchitecture.dao.CustomerDAOImpl;
-import com.example.layeredarchitecture.dao.ItemDAOImpl;
-import com.example.layeredarchitecture.dao.OrderDAOImpl;
-import com.example.layeredarchitecture.dao.OrderDetailsDAOImpl;
-import com.example.layeredarchitecture.dao.ItemDAO;
-import com.example.layeredarchitecture.dao.OrderDAO;
-import com.example.layeredarchitecture.dao.OrderDetailsDAO;
+import com.example.layeredarchitecture.BO.*;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.model.ItemDTO;
@@ -59,13 +52,10 @@ public class PlaceOrderFormController {
     public Label lblTotal;
     private String orderId;
 
-    CustomerDAO customerDAOImpl = new CustomerDAOImpl();
+    CustomerBO customerBO = new CustomerBOImpl();
+    ItemBO itemBO = new ItemBOImpl();
+    OrderBO orderBO = new OrderBOImpl();
 
-    ItemDAO itemDAOImpl = new ItemDAOImpl();
-
-    OrderDAO orderDAOImpl = new OrderDAOImpl();
-
-    OrderDetailsDAO orderDetailsDAOImpl = new OrderDetailsDAOImpl();
 
     public void initialize() throws SQLException, ClassNotFoundException {
 
@@ -112,12 +102,12 @@ public class PlaceOrderFormController {
                 try {
                     /*Search Customer*/
                     try {
-                        if (!customerDAOImpl.exist(newValue + "")) {
+                        if (!customerBO.existCustomer(newValue + "")) {
 //                            "There is no such customer associated with the id " + id
                             new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + newValue + "").show();
                         }
 
-                        CustomerDTO customer = customerDAOImpl.getCustomer(newValue);
+                        CustomerDTO customer = customerBO.getCustomer(newValue);
 
                         txtCustomerName.setText(customer.getName());
                     } catch (SQLException e) {
@@ -141,10 +131,10 @@ public class PlaceOrderFormController {
 
                 /*Find Item*/
                 try {
-                    if (!itemDAOImpl.exist(newItemCode + "")) {
+                    if (!itemBO.existItem(newItemCode + "")) {
 //                        throw new NotFoundException("There is no such item associated with the id " + code);
                     }
-                    ItemDTO itemDTO = itemDAOImpl.Item(newItemCode);
+                    ItemDTO itemDTO = itemBO.Item(newItemCode);
 
                     txtDescription.setText(itemDTO.getDescription());
                     txtUnitPrice.setText(itemDTO.getUnitPrice().setScale(2).toString());
@@ -191,9 +181,10 @@ public class PlaceOrderFormController {
     public String generateNewOrderId() {
         try {
 
-            String currentId=orderDAOImpl.getCurrentId();
+//            String currentId=
+                return orderBO.getNewOrderId();
 
-            return  String.format("OID-%03d", (Integer.parseInt(currentId.replace("OID-", "")) + 1));
+//            return  String.format("OID-%03d", (Integer.parseInt(currentId.replace("OID-", "")) + 1));
 
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Failed to generate a new order id").show();
@@ -206,7 +197,7 @@ public class PlaceOrderFormController {
     private void loadAllCustomerIds() {
         try {
 
-            ArrayList<CustomerDTO> customerList = customerDAOImpl.getAll();
+            ArrayList<CustomerDTO> customerList = customerBO.getAllCustomer();
 
             for (CustomerDTO customerDTO : customerList){
 
@@ -225,7 +216,7 @@ public class PlaceOrderFormController {
     private void loadAllItemCodes() {
         try {
             /*Get all items*/
-            ArrayList<ItemDTO> itemList = itemDAOImpl.getAll();
+            ArrayList<ItemDTO> itemList = itemBO.getAllItems();
             for (ItemDTO itemDTO : itemList){
                 cmbItemCode.getItems().add(itemDTO.getCode());
             }
@@ -328,13 +319,13 @@ public class PlaceOrderFormController {
             Connection connection = DBConnection.getDbConnection().getConnection();
 
             /*if order id already exist*/
-            if (orderDAOImpl.exist(orderId)){
+            if (orderBO.existOrder(orderId)){
                 return false;
             }
 
             connection.setAutoCommit(false);
 
-            if (!(orderDAOImpl.save(new OrderDTO(orderId,orderDate,customerId)))){
+            if (!(orderBO.saveOrder(new OrderDTO(orderId,orderDate,customerId)))){
                 connection.rollback();
                 connection.setAutoCommit(true);
                 return false;
@@ -344,7 +335,7 @@ public class PlaceOrderFormController {
 
             for (OrderDetailDTO detail : orderDetails) {
 
-                if (!(orderDetailsDAOImpl.save(detail))) {
+                if (!(orderBO.saveOrderDetail(detail))) {
                     connection.rollback();
                     connection.setAutoCommit(true);
                     return false;
@@ -355,7 +346,7 @@ public class PlaceOrderFormController {
                 ItemDTO item = findItem(detail.getItemCode());
                 item.setQtyOnHand(item.getQtyOnHand() - detail.getQty());
 
-                if (!(itemDAOImpl.update(new ItemDTO(item.getCode(),item.getDescription(),item.getUnitPrice(),item.getQtyOnHand())))) {
+                if (!(itemBO.updateItem(new ItemDTO(item.getCode(),item.getDescription(),item.getUnitPrice(),item.getQtyOnHand())))) {
                     connection.rollback();
                     connection.setAutoCommit(true);
                     return false;
@@ -379,7 +370,7 @@ public class PlaceOrderFormController {
     public ItemDTO findItem(String code) {
         try {
 
-            return itemDAOImpl.Item(code);
+            return itemBO.Item(code);
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find the Item " + code, e);

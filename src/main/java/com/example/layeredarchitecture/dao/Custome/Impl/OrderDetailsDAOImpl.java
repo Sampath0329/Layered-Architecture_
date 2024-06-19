@@ -1,5 +1,7 @@
-package com.example.layeredarchitecture.dao;
+package com.example.layeredarchitecture.dao.Custome.Impl;
 
+import com.example.layeredarchitecture.dao.Custome.OrderDetailsDAO;
+import com.example.layeredarchitecture.dao.SQLUtil;
 import com.example.layeredarchitecture.model.OrderDetailDTO;
 
 import java.sql.SQLException;
@@ -26,5 +28,5 @@ public class OrderDetailsDAOImpl implements OrderDetailsDAO {
     public void delete(String id) throws SQLException, ClassNotFoundException {}
 
     @Override
-    public String getCurrentId() throws SQLException, ClassNotFoundException {return null;}
+    public String getNewId() throws SQLException, ClassNotFoundException {return null;}
 }

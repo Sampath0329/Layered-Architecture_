@@ -15,6 +15,6 @@ public interface CrudDAO<C> {
 
     public void delete(String id)throws SQLException, ClassNotFoundException;
 
-    public String getCurrentId() throws SQLException, ClassNotFoundException;
+    public String getNewId() throws SQLException, ClassNotFoundException;
 
 }

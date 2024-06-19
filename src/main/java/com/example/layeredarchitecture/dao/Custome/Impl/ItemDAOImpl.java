@@ -1,5 +1,7 @@
-package com.example.layeredarchitecture.dao;
+package com.example.layeredarchitecture.dao.Custome.Impl;
 
+import com.example.layeredarchitecture.dao.Custome.ItemDAO;
+import com.example.layeredarchitecture.dao.SQLUtil;
 import com.example.layeredarchitecture.model.ItemDTO;
 
 import java.sql.*;
@@ -50,15 +52,16 @@ public class ItemDAOImpl implements ItemDAO {
     }
 
     @Override
-    public String getCurrentId() throws SQLException, ClassNotFoundException {
+    public String getNewId() throws SQLException, ClassNotFoundException {
 
         ResultSet rst = SQLUtil.execute("SELECT code FROM Item ORDER BY code DESC LIMIT 1;");
+        return rst.next() ? String.format("I00-%03d", (Integer.parseInt(rst.getString(1).replace("I00-", "")) + 1)) : "I00-001";
 
-
-        if (rst.next()){
-            return rst.getString(1);
-        }
-        return null;
+//
+//        if (rst.next()){
+//            return rst.getString(1);
+//        }
+//        return null;
     }
 
 
