@@ -2,27 +2,27 @@ package com.example.layeredarchitecture.view.tdm;
 
 import java.math.BigDecimal;
 
-
-public class OrderDetailTM{
+public class SearchOrderTM {
     private String code;
     private String description;
     private int qty;
     private BigDecimal unitPrice;
     private BigDecimal total;
 
-    public OrderDetailTM(String itemCode, int qty, BigDecimal unitPrice) {
-        this.code = itemCode;
-        this.qty = qty;
-        this.unitPrice = unitPrice;
+    public SearchOrderTM(){}
 
-    }
-
-    public OrderDetailTM(String code, String description, int qty, BigDecimal unitPrice, BigDecimal total) {
+    public SearchOrderTM(String code, String description, int qty, BigDecimal unitPrice, BigDecimal total) {
         this.code = code;
         this.description = description;
         this.qty = qty;
         this.unitPrice = unitPrice;
         this.total = total;
+    }
+    public SearchOrderTM(String code, String description, int qty, BigDecimal unitPrice) {
+        this.code = code;
+        this.description = description;
+        this.qty = qty;
+        this.unitPrice = unitPrice;
     }
 
     public String getCode() {
@@ -63,16 +63,5 @@ public class OrderDetailTM{
 
     public void setTotal(BigDecimal total) {
         this.total = total;
-    }
-
-    @Override
-    public String toString() {
-        return "OrderDetailTM{" +
-                "code='" + code + '\'' +
-                ", description='" + description + '\'' +
-                ", qty=" + qty +
-                ", unitPrice=" + unitPrice +
-                ", total=" + total +
-                '}';
     }
 }

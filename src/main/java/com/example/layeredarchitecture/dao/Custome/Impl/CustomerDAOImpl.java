@@ -18,7 +18,7 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public ArrayList<CustomerDTO> getAll() throws SQLException, ClassNotFoundException {
+    public ArrayList<CustomerDTO> getAll( ) throws SQLException, ClassNotFoundException {
 
         ResultSet rst = SQLUtil.execute("SELECT * FROM Customer");
 

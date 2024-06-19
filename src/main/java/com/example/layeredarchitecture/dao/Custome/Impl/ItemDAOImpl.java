@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class ItemDAOImpl implements ItemDAO {
     @Override
-    public ArrayList<ItemDTO> getAll() throws SQLException, ClassNotFoundException {
+    public ArrayList<ItemDTO> getAll( ) throws SQLException, ClassNotFoundException {
 
         ResultSet rst = SQLUtil.execute("SELECT * FROM Item");
 

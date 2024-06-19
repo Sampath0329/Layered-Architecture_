@@ -36,10 +36,31 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public boolean update(OrderDTO orderDTO) throws SQLException, ClassNotFoundException {return false;}
 
+
     @Override
-    public ArrayList<OrderDTO> getAll() throws SQLException, ClassNotFoundException {return null;}
+    public ArrayList<OrderDTO> getAll( ) throws SQLException, ClassNotFoundException {
+        ResultSet rst = SQLUtil.execute("SELECT * FROM Orders");
+
+        ArrayList<OrderDTO> allOrders = new ArrayList<>();
+
+        while (rst.next()){
+            allOrders.add(new OrderDTO(
+                    rst.getString(1),
+                    rst.getDate(2).toLocalDate(),
+                    rst.getString(3)
+            ));
+        }
+        return allOrders;
+    }
 
 
     @Override
     public void delete(String id) throws SQLException, ClassNotFoundException {}
+
+    @Override
+    public OrderDTO getOrder(String newValue) throws SQLException, ClassNotFoundException {
+        ResultSet rst = SQLUtil.execute("SELECT * FROM Orders WHERE oid=?",newValue);
+        rst.next();
+        return new OrderDTO(rst.getString(1), rst.getDate(2).toLocalDate(),rst.getString(3));
+    }
 }

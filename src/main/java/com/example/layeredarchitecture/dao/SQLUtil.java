@@ -14,8 +14,6 @@ public class SQLUtil {
 
         PreparedStatement pstm = connection.prepareStatement(sql);
 
-        System.out.println(sql);
-
         for (int i = 0; i < obj.length; i++) {
 
             pstm.setObject((i+1),obj[i]);

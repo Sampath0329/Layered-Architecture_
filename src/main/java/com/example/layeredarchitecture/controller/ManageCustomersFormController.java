@@ -1,7 +1,7 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.BO.CustomerBO;
-import com.example.layeredarchitecture.BO.CustomerBOImpl;
+import com.example.layeredarchitecture.BO.Custom.CustomerBO;
+import com.example.layeredarchitecture.BO.Custom.Impl.CustomerBOImpl;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.view.tdm.CustomerTM;
 import com.jfoenix.controls.JFXButton;
@@ -73,8 +73,8 @@ public class ManageCustomersFormController {
 
             ArrayList<CustomerDTO> allCustomer = customerBO.getAllCustomer();
 
-            for (CustomerDTO customerDTO : allCustomer){
-                tblCustomers.getItems().add(new CustomerTM(customerDTO.getId(),customerDTO.getName(),customerDTO.getAddress()));
+            for (CustomerDTO c : allCustomer){
+                tblCustomers.getItems().add(new CustomerTM(c.getId(), c.getName(), c.getAddress()));
 
             }
 

@@ -1,6 +1,11 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.BO.*;
+import com.example.layeredarchitecture.BO.Custom.CustomerBO;
+import com.example.layeredarchitecture.BO.Custom.Impl.CustomerBOImpl;
+import com.example.layeredarchitecture.BO.Custom.Impl.ItemBOImpl;
+import com.example.layeredarchitecture.BO.Custom.Impl.OrderBOImpl;
+import com.example.layeredarchitecture.BO.Custom.ItemBO;
+import com.example.layeredarchitecture.BO.Custom.OrderBO;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.model.ItemDTO;
@@ -52,8 +57,6 @@ public class PlaceOrderFormController {
     public Label lblTotal;
     private String orderId;
 
-    CustomerBO customerBO = new CustomerBOImpl();
-    ItemBO itemBO = new ItemBOImpl();
     OrderBO orderBO = new OrderBOImpl();
 
 
@@ -102,12 +105,12 @@ public class PlaceOrderFormController {
                 try {
                     /*Search Customer*/
                     try {
-                        if (!customerBO.existCustomer(newValue + "")) {
+                        if (!orderBO.existCustomer(newValue + "")) {
 //                            "There is no such customer associated with the id " + id
                             new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + newValue + "").show();
                         }
 
-                        CustomerDTO customer = customerBO.getCustomer(newValue);
+                        CustomerDTO customer = orderBO.getCustomer(newValue);
 
                         txtCustomerName.setText(customer.getName());
                     } catch (SQLException e) {
@@ -131,10 +134,10 @@ public class PlaceOrderFormController {
 
                 /*Find Item*/
                 try {
-                    if (!itemBO.existItem(newItemCode + "")) {
+                    if (!orderBO.existItem(newItemCode + "")) {
 //                        throw new NotFoundException("There is no such item associated with the id " + code);
                     }
-                    ItemDTO itemDTO = itemBO.Item(newItemCode);
+                    ItemDTO itemDTO = orderBO.getItem(newItemCode);
 
                     txtDescription.setText(itemDTO.getDescription());
                     txtUnitPrice.setText(itemDTO.getUnitPrice().setScale(2).toString());
@@ -197,7 +200,7 @@ public class PlaceOrderFormController {
     private void loadAllCustomerIds() {
         try {
 
-            ArrayList<CustomerDTO> customerList = customerBO.getAllCustomer();
+            ArrayList<CustomerDTO> customerList = orderBO.getAllCustomer();
 
             for (CustomerDTO customerDTO : customerList){
 
@@ -216,7 +219,7 @@ public class PlaceOrderFormController {
     private void loadAllItemCodes() {
         try {
             /*Get all items*/
-            ArrayList<ItemDTO> itemList = itemBO.getAllItems();
+            ArrayList<ItemDTO> itemList = orderBO.getAllItems();
             for (ItemDTO itemDTO : itemList){
                 cmbItemCode.getItems().add(itemDTO.getCode());
             }
@@ -295,6 +298,7 @@ public class PlaceOrderFormController {
     }
 
     public void btnPlaceOrder_OnAction(ActionEvent actionEvent) {
+
         boolean b = saveOrder(orderId, LocalDate.now(), cmbCustomerId.getValue(),
                 tblOrderDetails.getItems().stream().map(tm -> new OrderDetailDTO(orderId,tm.getCode(), tm.getQty(), tm.getUnitPrice())).collect(Collectors.toList()));
 
@@ -314,71 +318,10 @@ public class PlaceOrderFormController {
     }
 
     public boolean saveOrder(String orderId, LocalDate orderDate, String customerId, List<OrderDetailDTO> orderDetails) {
-        /*Transaction*/
-        try {
-            Connection connection = DBConnection.getDbConnection().getConnection();
+        return orderBO.saveOrder(orderId,orderDate,customerId,orderDetails);
 
-            /*if order id already exist*/
-            if (orderBO.existOrder(orderId)){
-                return false;
-            }
-
-            connection.setAutoCommit(false);
-
-            if (!(orderBO.saveOrder(new OrderDTO(orderId,orderDate,customerId)))){
-                connection.rollback();
-                connection.setAutoCommit(true);
-                return false;
-            }
-
-
-
-            for (OrderDetailDTO detail : orderDetails) {
-
-                if (!(orderBO.saveOrderDetail(detail))) {
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                    return false;
-                }
-
-//                //Search & Update Item
-
-                ItemDTO item = findItem(detail.getItemCode());
-                item.setQtyOnHand(item.getQtyOnHand() - detail.getQty());
-
-                if (!(itemBO.updateItem(new ItemDTO(item.getCode(),item.getDescription(),item.getUnitPrice(),item.getQtyOnHand())))) {
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                    return false;
-                }
-
-            }
-
-            connection.commit();
-            connection.setAutoCommit(true);
-            return true;
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
-
-    public ItemDTO findItem(String code) {
-        try {
-
-            return itemBO.Item(code);
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to find the Item " + code, e);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
 
 }
